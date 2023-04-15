@@ -11,6 +11,7 @@ define((F <- G), (G -> F)).
 define((F -> G), ~ F v G).
 
 
+
 %?- unfold( p <-> q & ¬ r, G ).
 %G =  (¬p v q& ¬r)&(¬ (q& ¬r)v p).
 
@@ -18,35 +19,26 @@ define((F -> G), ~ F v G).
 %G = ¬ ((¬ (¬a v b)v c)&(¬c v (¬a v b))).
 
 
+% Predicado unfold para transformar fórmulas en su equivalente con los operadores permitidos
 unfold(F,G) :- atom(F), G=F.
 
-unfold(F, G) :- 
-    define(F, G).
+unfold(~F, ~G) :-
+    unfold(F, G).
 
-%unfold(F -> G, S) :- S= ~ F v G.
+unfold((F & G), (H & J)) :-
+    unfold(F, H),
+    unfold(G, J).
 
+unfold((F v G), (H v J)) :-
+    unfold(F, H),
+    unfold(G, J).
 
-%unfold(F, DG & DH) :- 
-    %(F = (G & H); F = (G v H)),
-    %define(G, DG),
-    %define(H, DH).
-
-unfold(~F,~G) :- unfold(F,G).
-
-unfold(F & G, S) :-
-    unfold(F, H1),
-    unfold(G, K1),
-    (H1 = (X1 & X2), unfold(X1, DH1), unfold(X2, DK1), unfold(DH1 & DK1, DH3)),
-    (K1 = (X3 v X4), unfold(X3, DH2), unfold(X4, DK2), unfold(DH2 v DK2, DK4)),
-    S = DH3 & DK4.
-
-unfold(F v G, S) :-
-    unfold(F, H1),
-    unfold(G, K1),
-    (H1 = (X1 & X2), unfold(X1, DH1), unfold(X2, DK1), unfold(DH1 v DK1, DH3)),
-    (K1 = (X3 v X4), unfold(X3, DH2), unfold(X4, DK2), unfold(DH2 v DK2, DK4)),
-    S = DH3 v DK4.
-
+unfold(F, G) :-
+    functor(F, Op, Arity),
+    \+ atom(F), %en cuanto la formula F se convierta en un atomo, está parte de la formula se volvera falsa y devolvera false parando la ejecución
+    Arity = 2,
+    define(F, NewF),
+    unfold(NewF, G). %vuelve a llamar al método unfold cada vez hasta que F es un atom, averiguando en cada vez un valor para F, reduciendo la formula hasta  que solo queden ~, & , v
 
 
 %unfold(F v G, H v K) :- unfold(F, H), unfold(G, K).
