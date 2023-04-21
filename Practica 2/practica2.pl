@@ -34,14 +34,36 @@ unfold((F v G), (H v J)) :-
     unfold(G, J).
 
 unfold(F, G) :-
-    functor(F, Op, Arity),
-    \+ atom(F), %en cuanto la formula F se convierta en un atomo, está parte de la formula se volvera falsa y devolvera false parando la ejecución
-    Arity = 2,
     define(F, NewF),
     unfold(NewF, G). %vuelve a llamar al método unfold cada vez hasta que F es un atom, averiguando en cada vez un valor para F, reduciendo la formula hasta  que solo queden ~, & , v
 
 
 %unfold(F v G, H v K) :- unfold(F, H), unfold(G, K).
+
+tab(F,R) :- 
+    unfold(F,G), 
+    tab([G], [], R).
+
+tab([F], Ls, Ls) :- atom(F), Ls1=[F].
+
+tab([], Ls1, Ls2) :- !.
+
+tab([~ (~F)|Fs], Ls1, Ls2) :- tab([F|Fs], Ls1, Ls2).
+
+tab([F & G|Fs], Ls1, Ls2) :- tab([F,G|Fs], Ls1, Ls2).
+
+tab([F v G|Fs], Ls1, Ls2) :- 
+    tab([G|Fs], Ls1,Ls2),
+
+    +/atom(G),
+    Ls1=[G].
+
+    tab([F|Fs], Ls1,Ls2).
+
+
+
+% [1,2,3,4] = [1|[2|[3|[4|[]]]]
+
 
 
 
