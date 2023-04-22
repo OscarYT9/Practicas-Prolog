@@ -5,6 +5,8 @@
 :- op(400, yfx, &).     % conjunción
 :- op(200, fy, ~ ).     % negación
 
+
+% Definición de los átomos
 define((F xor G), ~ (F <-> G)).
 define((F <-> G), (F -> G) & (F <- G)).
 define((F <- G), (G -> F)).
@@ -23,7 +25,7 @@ define((F -> G), ~ F v G).
 unfold(F,G) :- atom(F), G=F.
 
 unfold(~F, ~G) :-
-    unfold(F, G).
+    unfold(F, G), !.
 
 unfold((F & G), (H & J)) :-
     unfold(F, H),
@@ -35,30 +37,42 @@ unfold((F v G), (H v J)) :-
 
 unfold(F, G) :-
     define(F, NewF),
-    unfold(NewF, G). %vuelve a llamar al método unfold cada vez hasta que F es un atom, averiguando en cada vez un valor para F, reduciendo la formula hasta  que solo queden ~, & , v
+    unfold(NewF, G), !. %vuelve a llamar al método unfold cada vez hasta que F es un atom, averiguando en cada vez un valor para F, reduciendo la formula hasta  que solo queden ~, & , v
 
 
 %unfold(F v G, H v K) :- unfold(F, H), unfold(G, K).
 
-tab(F,R) :- 
-    unfold(F,G), 
+tab(F, R) :- 
+    unfold(F, G), 
     tab([G], [], R).
 
-tab([F], Ls, Ls) :- atom(F), Ls1=[F].
+tab([F], _, [F]) :- atomic(F).
+    
+tab([~F], _, [~F]) :- atomic(F).
 
-tab([], Ls1, Ls2) :- !.
+tab([], _, []).
 
-tab([~ (~F)|Fs], Ls1, Ls2) :- tab([F|Fs], Ls1, Ls2).
+tab([~(~F)], Ls1, Ls2) :- 
+    tab([F], Ls1, Ls2).
 
-tab([F & G|Fs], Ls1, Ls2) :- tab([F,G|Fs], Ls1, Ls2).
+tab([F & G], Ls1, Ls2) :- 
+    tab([F], Ls1, Ls3),
+    tab([G], Ls1, Ls4),
+    append(Ls3, Ls4, Ls2).
 
-tab([F v G|Fs], Ls1, Ls2) :- 
-    tab([G|Fs], Ls1,Ls2),
+tab([~(F & G)], Ls1, Ls2) :- 
+    tab([~F v ~G], Ls1, Ls2).
 
-    +/atom(G),
-    Ls1=[G].
+tab([F v G], Ls1, Ls2) :- 
+    tab([F], Ls1, Ls3),
+    tab([G], Ls1, Ls4),
+    append(Ls3, Ls4, Ls2).
 
-    tab([F|Fs], Ls1,Ls2).
+tab([~(F v G)], Ls1, Ls2) :- 
+    tab([~F], Ls1, Ls3),
+    tab([~G], Ls1, Ls4),
+    append(Ls3, Ls4, Ls2).
+
 
 
 
