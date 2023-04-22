@@ -37,7 +37,7 @@ unfold((F v G), (H v J)) :-
 
 unfold(F, G) :-
     define(F, NewF),
-    unfold(NewF, G), !. %vuelve a llamar al método unfold cada vez hasta que F es un atom, averiguando en cada vez un valor para F, reduciendo la formula hasta  que solo queden ~, & , v
+    unfold(NewF, G), !. % Con el ! cuando acaba de hacer el unfold(NewF, G) que es recursivo por lo que itera varias veces, simplemente para sin devolver false, ya que cuando vuelve arriba y comprueba las funciones ninguna da True por lo que devuelve False %vuelve a llamar al método unfold cada vez hasta que F es un atom, averiguando en cada vez un valor para F, reduciendo la formula hasta  que solo queden ~, & , v
 
 
 %unfold(F v G, H v K) :- unfold(F, H), unfold(G, K).
@@ -47,7 +47,7 @@ tab(F, R) :-
     tab([G], [], R).
 
 tab([F], _, [F]) :- atomic(F).
-    
+
 tab([~F], _, [~F]) :- atomic(F).
 
 tab([], _, []).
@@ -66,12 +66,11 @@ tab([~(F & G)], Ls1, Ls2) :-
 tab([F v G], Ls1, Ls2) :- 
     tab([F], Ls1, Ls3),
     tab([G], Ls1, Ls4),
-    append(Ls3, Ls4, Ls2).
+    Ls2 = [Ls3, Ls4].
 
 tab([~(F v G)], Ls1, Ls2) :- 
-    tab([~F], Ls1, Ls3),
-    tab([~G], Ls1, Ls4),
-    append(Ls3, Ls4, Ls2).
+    tab([~F & ~G], Ls1, Ls2).
+
 
 
 
