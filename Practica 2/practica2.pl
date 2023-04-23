@@ -59,7 +59,7 @@ tab([F & G], Ls2) :-
     tab([F], Ls3),
     tab([G], Ls4),
     append(Ls3, Ls4, Ls2),
-    check_list(Ls2).
+    tab(Ls2).
 
 tab([~(F & G)], Ls2) :-
     tab([~F v ~G], Ls2).
@@ -70,7 +70,7 @@ tab([F v G], Ls2) :-
 tab([~(F v G)], Ls2) :-
     tab([~F & ~G], Ls2).
 
-check_list(Ls2) :-
+tab(Ls2) :-
     \+ (select(A, Ls2, Rest), memberchk(~A, Rest)).
 
 % Fs lista de fórmulas que aún tenemos que desdoblar en la tabla semántica, 
