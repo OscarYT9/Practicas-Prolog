@@ -71,11 +71,7 @@ tab([~(F v G)], Ls2) :-
     tab([~F & ~G], Ls2).
 
 check_list(Ls2) :-
-    findall(A, (member(A, Ls2), atomic(A)), Atoms),
-    findall(A, (member(~A, Ls2), atomic(A)), NegAtoms),
-    intersection(Atoms, NegAtoms, Shared),
-    Shared = [].
-
+    \+ (select(A, Ls2, Rest), memberchk(~A, Rest)).
 
 % Fs lista de fórmulas que aún tenemos que desdoblar en la tabla semántica, 
 % Lits1 conjunto de literales que llevamos calculados en la rama actual hasta el momento, si llegamos al final (no quedan fórmulas por desdoblar) la lista
