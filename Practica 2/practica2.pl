@@ -55,21 +55,21 @@ tab([], _, _) :- !, fail.
 tab([~(~F)], Ls1, Ls2) :- 
     tab([F], Ls1, Ls2).
 
-tab([F & G|Fs], Ls1, Ls2) :- 
-    tab([F|Fs], Ls1, Ls3),
-    tab([G|Fs], Ls1, Ls4),
+tab([F & G], Ls1, Ls2) :- 
+    tab([F], Ls1, Ls3),
+    tab([G], Ls1, Ls4),
     append(Ls3, Ls4, Ls2).
 
-tab([~(F & G)|Fs], Ls1, Ls2) :- 
-    tab([~F v ~G|Fs], Ls1, Ls2).
+tab([~(F & G)], Ls1, Ls2) :- 
+    tab([~F v ~G], Ls1, Ls2).
 
-tab([F v G|Fs], Ls1, Ls2) :- 
-    (   tab([F|Fs], Ls1, Ls2)
-    ;   tab([G|Fs], Ls1, Ls2)
+tab([F v G], Ls1, Ls2) :- 
+    (   tab([F], Ls1, Ls2)
+    ;   tab([G], Ls1, Ls2)
     ).
 
-tab([~(F v G)|Fs], Ls1, Ls2) :- 
-    tab([~F & ~G|Fs], Ls1, Ls2).
+tab([~(F v G)], Ls1, Ls2) :- 
+    tab([~F & ~G], Ls1, Ls2).
 
 
 
