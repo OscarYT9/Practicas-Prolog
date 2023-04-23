@@ -44,34 +44,35 @@ unfold(F, G) :-
 
 tab(F, R) :-
     unfold(F, G),
-    tab([G], R).
+    tab([G], [], R).
 
-tab([F], [F]) :-
+tab([F], Ls1, [F|Ls1]) :-
     atomic(F).
 
-tab([~F], [~F]) :-
+tab([~F], Ls1, [~F|Ls1]) :-
     atomic(F).
 
-tab([~(~F)], Ls2) :-
-    tab([F], Ls2).
+tab([~(~F)], Ls1, Ls2) :-
+    tab([F], Ls1, Ls2).
 
-tab([F & G], Ls2) :-
-    tab([F], Ls3),
-    tab([G], Ls4),
-    append(Ls3, Ls4, Ls2),
-    tab(Ls2).
+tab([F & G], Ls1, Ls3) :-
+    tab([F], Ls1, Ls2),
+    tab([G], Ls2, Ls3),
+    tab(Ls3).
 
-tab([~(F & G)], Ls2) :-
-    tab([~F v ~G], Ls2).
+tab([~(F & G)], Ls1, Ls2) :-
+    tab([~F v ~G], Ls1, Ls2).
 
-tab([F v G], Ls2) :-
-    (tab([F], Ls2) ; tab([G], Ls2)).
+tab([F v G], Ls1, Ls2) :-
+    (tab([F], Ls1, Ls2);
+    tab([G], Ls1, Ls2)).
+    
+tab([~(F v G)], Ls1, Ls2) :-
+    tab([~F & ~G], Ls1, Ls2).
 
-tab([~(F v G)], Ls2) :-
-    tab([~F & ~G], Ls2).
+tab(Ls3) :-
+    \+ (select(A, Ls3, Rest), memberchk(~A, Rest)).
 
-tab(Ls2) :-
-    \+ (select(A, Ls2, Rest), memberchk(~A, Rest)).
 
 % Fs lista de fórmulas que aún tenemos que desdoblar en la tabla semántica, 
 % Lits1 conjunto de literales que llevamos calculados en la rama actual hasta el momento, si llegamos al final (no quedan fórmulas por desdoblar) la lista
