@@ -50,30 +50,34 @@ tab([F], _, [F]) :- atomic(F).
 
 tab([~F], _, [~F]) :- atomic(F).
 
-tab([], _, []).
+tab([], _, _) :- !, fail.
 
 tab([~(~F)], Ls1, Ls2) :- 
     tab([F], Ls1, Ls2).
 
-tab([F & G], Ls1, Ls2) :- 
-    tab([F], Ls1, Ls3),
-    tab([G], Ls1, Ls4),
+tab([F & G|Fs], Ls1, Ls2) :- 
+    tab([F|Fs], Ls1, Ls3),
+    tab([G|Fs], Ls1, Ls4),
     append(Ls3, Ls4, Ls2).
 
-tab([~(F & G)], Ls1, Ls2) :- 
-    tab([~F v ~G], Ls1, Ls2).
+tab([~(F & G)|Fs], Ls1, Ls2) :- 
+    tab([~F v ~G|Fs], Ls1, Ls2).
 
-tab([F v G], Ls1, Ls2) :- 
-    tab([F], Ls1, Ls3),
-    tab([G], Ls1, Ls4),
-    Ls2 = [Ls3, Ls4].
+tab([F v G|Fs], Ls1, Ls2) :- 
+    (   tab([F|Fs], Ls1, Ls2)
+    ;   tab([G|Fs], Ls1, Ls2)
+    ).
 
-tab([~(F v G)], Ls1, Ls2) :- 
-    tab([~F & ~G], Ls1, Ls2).
-
-
+tab([~(F v G)|Fs], Ls1, Ls2) :- 
+    tab([~F & ~G|Fs], Ls1, Ls2).
 
 
+
+
+
+% Fs lista de fórmulas que aún tenemos que desdoblar en la tabla semántica, 
+% Lits1 conjunto de literales que llevamos calculados en la rama actual hasta el momento, si llegamos al final (no quedan fórmulas por desdoblar) la lista
+% Lits2 devuelve la rama que hemos encontrado abierta. Si todas las ramas están cerradas (fórmula inconsistente) tanto tab/3 como, por tanto, tab/2 deberán ser false.
 
 % [1,2,3,4] = [1|[2|[3|[4|[]]]]
 
