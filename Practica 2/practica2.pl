@@ -42,33 +42,39 @@ unfold(F, G) :-
 
 %unfold(F v G, H v K) :- unfold(F, H), unfold(G, K).
 
-tab(F, R) :- 
-    unfold(F, G), 
+tab(F, R) :-
+    unfold(F, G),
     tab([G], R).
 
-tab([F], [F]) :- atomic(F).
+tab([F], [F]) :-
+    atomic(F).
 
-tab([~F],[~F]) :- atomic(F).
+tab([~F], [~F]) :-
+    atomic(F).
 
-tab([~(~F)], Ls2) :- 
+tab([~(~F)], Ls2) :-
     tab([F], Ls2).
 
-tab([F & G], Ls2) :- 
+tab([F & G], Ls2) :-
     tab([F], Ls3),
     tab([G], Ls4),
-    append(Ls3, Ls4, Ls2).
+    append(Ls3, Ls4, Ls2),
+    check_list(Ls2).
 
-tab([~(F & G)], Ls2) :- 
+tab([~(F & G)], Ls2) :-
     tab([~F v ~G], Ls2).
 
-tab([F v G], Ls2) :- 
+tab([F v G], Ls2) :-
     (tab([F], Ls2) ; tab([G], Ls2)).
 
-tab([~(F v G)], Ls2) :- 
+tab([~(F v G)], Ls2) :-
     tab([~F & ~G], Ls2).
 
-
-
+check_list(Ls2) :-
+    findall(A, (member(A, Ls2), atomic(A)), Atoms),
+    findall(A, (member(~A, Ls2), atomic(A)), NegAtoms),
+    intersection(Atoms, NegAtoms, Shared),
+    Shared = [].
 
 
 % Fs lista de fórmulas que aún tenemos que desdoblar en la tabla semántica, 
