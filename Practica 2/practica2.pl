@@ -44,32 +44,28 @@ unfold(F, G) :-
 
 tab(F, R) :- 
     unfold(F, G), 
-    tab([G], [], R).
+    tab([G], R).
 
-tab([F], _, [F]) :- atomic(F).
+tab([F], [F]) :- atomic(F).
 
-tab([~F], _, [~F]) :- atomic(F).
+tab([~F],[~F]) :- atomic(F).
 
-tab([], _, _) :- !, fail.
+tab([~(~F)], Ls2) :- 
+    tab([F], Ls2).
 
-tab([~(~F)], Ls1, Ls2) :- 
-    tab([F], Ls1, Ls2).
-
-tab([F & G], Ls1, Ls2) :- 
-    tab([F], Ls1, Ls3),
-    tab([G], Ls1, Ls4),
+tab([F & G], Ls2) :- 
+    tab([F], Ls3),
+    tab([G], Ls4),
     append(Ls3, Ls4, Ls2).
 
-tab([~(F & G)], Ls1, Ls2) :- 
-    tab([~F v ~G], Ls1, Ls2).
+tab([~(F & G)], Ls2) :- 
+    tab([~F v ~G], Ls2).
 
-tab([F v G], Ls1, Ls2) :- 
-    (   tab([F], Ls1, Ls2)
-    ;   tab([G], Ls1, Ls2)
-    ).
+tab([F v G], Ls2) :- 
+    (tab([F], Ls2) ; tab([G], Ls2)).
 
-tab([~(F v G)], Ls1, Ls2) :- 
-    tab([~F & ~G], Ls1, Ls2).
+tab([~(F v G)], Ls2) :- 
+    tab([~F & ~G], Ls2).
 
 
 
