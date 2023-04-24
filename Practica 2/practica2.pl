@@ -8,7 +8,7 @@
 :- op(600, yfx, v).     % disyunción
 :- op(400, yfx, &).     % conjunción
 :- op(200, fy, ~ ).     % negación
-:- op(800, yfx, nand).
+%:- op(800, yfx, nand).
 
 %_______________________________________________________________________________________________________________________________________________________________________________
 % Apartado 1: operadores derivados (predicado unfold)
@@ -20,7 +20,8 @@ define((F xor G), ~ (F <-> G)).
 define((F <-> G), (F -> G) & (F <- G)).
 define((F <- G), (G -> F)).
 define((F -> G), ~ F v G).
-define((F nand G), ~ (F & G)).
+%define((F nand G), ~ (F & G)).
+%Se pueden definir más reglas con define...
 
 unfold(F,G) :- atom(F), G=F. % Si F es un átomo, entonces G será igual a F.
 
@@ -91,4 +92,4 @@ tab(Ls3) :-                                         % Si Ls3 es una lista de fó
     % El predicado 'memberchk' verifica si un elemento está presente en la lista; en este caso, se verifica si la negación de 'A' está en la lista restante 'Rest'
     % La expresión '\+' se utiliza para negar la expresión entre paréntesis; por lo tanto, el predicado 'tab' devuelve verdadero si no hay un elemento 'A' y su negación '~A' en la lista 'Ls3'
 
-    % Ahora mismo pueden aparecer atomos repetidos en la lista, se podría crear un predicado extra para eliminarlos, pero como tampoco afectan al valor de verdad de la rama tampoco sería necesario
+    % Ahora mismo pueden aparecer atomos repetidos en la lista resultado, se podría crear un predicado extra para eliminarlos, pero como tampoco afectan al valor de verdad de la rama por lo que tampoco sería extrictamente necesario
