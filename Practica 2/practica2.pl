@@ -4,14 +4,14 @@
 :- op(600, yfx, v).     % disyunción
 :- op(400, yfx, &).     % conjunción
 :- op(200, fy, ~ ).     % negación
-
+:- op(800, yfx, nand).
 
 % Definición de los átomos
 define((F xor G), ~ (F <-> G)).
 define((F <-> G), (F -> G) & (F <- G)).
 define((F <- G), (G -> F)).
 define((F -> G), ~ F v G).
-
+define((F nand G), ~ (F & G)).
 
 
 %?- unfold( p <-> q & ¬ r, G ).
@@ -22,53 +22,53 @@ define((F -> G), ~ F v G).
 
 
 % Predicado unfold para transformar fórmulas en su equivalente con los operadores permitidos
-unfold(F,G) :- atom(F), G=F.
 
-unfold(~F, ~G) :-
+unfold(F,G) :- atom(F), G=F. % Si F es un átomo, entonces G será igual a F.
+
+unfold(~F, ~G) :- % Si F es una negación, se aplicará la equivalencia de la negación.
     unfold(F, G), !.
 
-unfold((F & G), (H & J)) :-
+unfold((F & G), (H & J)) :- % Si F y G están unidos por la conjunción, se aplicará la equivalencia de la conjunción.
     unfold(F, H),
     unfold(G, J).
 
-unfold((F v G), (H v J)) :-
+unfold((F v G), (H v J)) :- % Si F y G están unidos por la disyunción, se aplicará la equivalencia de la disyunción.
     unfold(F, H),
     unfold(G, J).
 
-unfold(F, G) :-
+unfold(F, G) :- % Si F no es un átomo ni una fórmula con los operadores permitidos, se utilizará el predicado define(F, NewF) para definir F en términos de los operadores permitidos.
     define(F, NewF),
-    unfold(NewF, G), !. % Con el ! cuando acaba de hacer el unfold(NewF, G) que es recursivo por lo que itera varias veces, simplemente para sin devolver false, ya que cuando vuelve arriba y comprueba las funciones ninguna da True por lo que devuelve False %vuelve a llamar al método unfold cada vez hasta que F es un atom, averiguando en cada vez un valor para F, reduciendo la formula hasta  que solo queden ~, & , v
+    unfold(NewF, G), !. % Se llama de manera recursiva al predicado unfold con la nueva fórmula NewF.
 
 
 %unfold(F v G, H v K) :- unfold(F, H), unfold(G, K).
-
+% ~a v ~ (~b v c).
 tab(F, R) :-
     unfold(F, G),
-    tab([G], [], R).
+    tab([G], [], R). % tab([~a v ~ (~b v c).], [], R)
 
-tab([F], Ls1, [F|Ls1]) :-
+tab([F], Ls1, [F|Ls1]) :- %tab([b], [], [b])
     atomic(F).
 
-tab([~F], Ls1, [~F|Ls1]) :-
+tab([~F], Ls1, [~F|Ls1]) :- %tab([~c], [b], [~c,b])
     atomic(F).
 
 tab([~(~F)], Ls1, Ls2) :-
-    tab([F], Ls1, Ls2).
+    tab([F], Ls1, Ls2). 
 
 tab([F & G], Ls1, Ls3) :-
-    tab([F], Ls1, Ls2),
-    tab([G], Ls2, Ls3),
-    tab(Ls3).
+    tab([F], Ls1, Ls2), %tab([b], [], Ls2) Ls2 =[b]
+    tab([G], Ls2, Ls3), %tab([~c], [b], Ls3) Ls3 =[~c, b]
+    tab(Ls3). % de ultimo comprueba toda la rama, para ver si hay algún átomo y su negación
 
 tab([~(F & G)], Ls1, Ls2) :-
     tab([~F v ~G], Ls1, Ls2).
 
 tab([F v G], Ls1, Ls2) :-
-    (tab([F], Ls1, Ls2);
-    tab([G], Ls1, Ls2)).
+    (tab([F], Ls1, Ls2) ; tab([G], Ls1, Ls2)). %F = tab([~a], [], Ls2) , tab([~ (~b v c).], [], Ls2)
     
 tab([~(F v G)], Ls1, Ls2) :-
-    tab([~F & ~G], Ls1, Ls2).
+    tab([~F & ~G], Ls1, Ls2). %tab([(b & ~c).], [], Ls2)
 
 tab(Ls3) :-
     \+ (select(A, Ls3, Rest), memberchk(~A, Rest)).
@@ -80,7 +80,7 @@ tab(Ls3) :-
 
 % [1,2,3,4] = [1|[2|[3|[4|[]]]]
 
-
+tab(((~p) & q) -> (p & (q v (~r))), R).
 
 
 
