@@ -11,22 +11,16 @@
 %?- subs(x/f(3), g(x), G). %f(3) no es atomico, g(x) no es atomico
 
 %Casos base
-subs(X/T, X, T):- !.                  %  w/f(3), w, G
-subs(X/T, H, H):- atom(H), !.           %  x/f(3), g(x), G
+subs(X/T, X, T):- !.                  %  z/f(3), y, G
+subs(X/T, H, H):- atom(H), !.           %  x/f(3), y, G
+subs(X/T, exists X::F, exists X::F):- !.  % casos para cuantificadores
+subs(X/T, forall X::F, forall X::F):- !.
 
+% Casos recursivos
 subs(X/T, F, G) :-                   
-    F =.. [Op|Arg],
-    Arg = [H|C],
-    subs(X/T, H, T).
-
-    subs(X/T, L, T),
-    G =.. T.
-
-subs(X v Y,)
-
-subs([L|Fs],L,T) :-
-    subs().
-
+    F =.. [Op|Args],
+    maplist(subs(X/T), Args, NewArgs), %Aplica el subs a cada elemento de la lista
+    G =.. [Op|NewArgs].
 
 
 % L =[subs, a/f(3), a+4], X=..L.
