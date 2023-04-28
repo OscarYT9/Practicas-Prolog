@@ -9,9 +9,26 @@
 
 
 %?- subs(x/f(3), g(x), G). %f(3) no es atomico, g(x) no es atomico
+
 %Casos base
-subs(X/T, X, T).
-subs(X/T, F, G) :-
-    F =.. [Op|Args],
-    maplist(subs(X/T), Args, Args1), 
-    G =.. [Op|Args1], !.
+subs(X/T, X, T):- !.                  %  w/f(3), w, G
+subs(X/T, H, H):- atom(H), !.           %  x/f(3), g(x), G
+
+subs(X/T, F, G) :-                   
+    F =.. [Op|Arg],
+    Arg = [H|C],
+    subs(X/T, H, T).
+
+    subs(X/T, L, T),
+    G =.. T.
+
+subs(X v Y,)
+
+subs([L|Fs],L,T) :-
+    subs().
+
+
+
+% L =[subs, a/f(3), a+4], X=..L.
+% L =[subs, a/f(3), a+4]
+% X = subs(a/f(3), a+4).
