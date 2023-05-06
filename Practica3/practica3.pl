@@ -21,15 +21,17 @@
 % ?- subs(x/3, forall y:: ( p(x,y) -> exists x:: ~ q(y,x) ) , G).       G = forall y::(p(3, y)->exists x:: ~q(y, x)).
 
 % Casos base
-subs(X/T, X, T):- !.                      %  z/f(3), y, G
-subs(X/T, H, H):- atom(H), !.             %  x/f(3), y, G
+subs(X/T, X, T):- !.                      %  x/f(3), x, G = f(3).
+subs(X/T, H, H):- atom(H), !.             %  x/f(3), y, G = y.
 subs(X/T, exists X::F, exists X::F):- !.  % casos para cuantificadores
 subs(X/T, forall X::F, forall X::F):- !.
 
 % Casos recursivos
 subs(X/T, F, G) :-                   
     F =.. [Op|Args],
-    maplist(subs(X/T), Args, NewArgs), %Aplica el subs a cada elemento de la lista
+    write('Args: '), write(Args), nl,
+    maplist(subs(X/T), Args, NewArgs),          % Sustituir cada X por T en cada elemento de Arg:   [forall y  ,   (p(x,y)->exists x:: ~q(y,x))] , Arg =[y] NewArgs: [y] (Si no existe la x devuevle el atomo correspondiente)
+    write('NewArgs: '), write(NewArgs), nl,     % Sustituir cada X por T en cada elemento de Arg:   [[p(x,y)   ,   exists x:: ~q(y,x)]] , NewArgs: [x,y] (Si no existe la x devuevle el atomo correspondiente)
     G =.. [Op|NewArgs].
 
 
