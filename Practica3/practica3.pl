@@ -39,6 +39,27 @@ subs(X/T, F, G) :-
 % L =[subs, a/f(3), a+4]
 % X = subs(a/f(3), a+4).
 
+
+%Otra implementación:
+% Caso base
+%subs(X/T, X, T) :- !.                  % z/f(3), y, G
+%subs(X/T, H, H) :- atom(H), !.         % x/f(3), y, G
+%subs(X/T, exists X::F, exists X::F) :- !. % casos para cuantificadores
+%subs(X/T, forall X::F, forall X::F) :- !.
+
+% Caso recursivo
+%subs(X/T, F, G) :-
+    %F =.. [Op|Args],
+    %subs_args(X/T, Args, NewArgs),
+    %G =.. [Op|NewArgs].
+
+% subs_args(+X/T, +Args, -NewArgs)
+%subs_args(_, [], []) :- !.
+%subs_args(X/T, [Arg|Args], [NewArg|NewArgs]) :-
+    %subs(X/T, Arg, NewArg),
+    %subs_args(X/T, Args, NewArgs).
+
+
 %_______________________________________________________________________________________________________________________________________________________________________________
 % Apartado 2. Predicado subs_list
 % Predicado que aplica una lista de sustituciones por orden de izquierda a derecha a una fórmula lógica F, devolviendo el resultado en G.
