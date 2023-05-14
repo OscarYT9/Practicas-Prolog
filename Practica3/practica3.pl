@@ -1,3 +1,7 @@
+% Oscar Vilela Rodriguez (oscar.vilela.rodriguez@udc.es)
+% Guillermo García Engelmo (g.garcia2@udc.es)
+
+% Operadores lógicos en prolog
 :- op(1060, yfx, <->).   % doble implicación
 :- op(1050, yfx, <-).    % implicación hacia la izquierda
 :- op(600, yfx, v).      % disyunción
@@ -7,8 +11,6 @@
 :- op(200, fx, exists).  % existencial
 :- op(300, xfy, ::).     % separador para cuantificadores
 
-
-%?- subs(x/f(3), g(x), G). %f(3) no es atomico, g(x) no es atomico
 %_______________________________________________________________________________________________________________________________________________________________________________
 % Apartado 1. Predicado subs
 % El predicado a implementar se denominará subs(X/T,F,G) donde X es la variable a reemplazar, T es el término por el que cambiaremos las apariciones libres de
@@ -21,26 +23,50 @@
 % ?- subs(x/3, forall y:: ( p(x,y) -> exists x:: ~ q(y,x) ) , G).       G = forall y::(p(3, y)->exists x:: ~q(y, x)).
 
 % Casos base
-subs(X/T, X, T):- !.                      %  x/f(3), x, G = f(3).
-subs(X/T, H, H):- atom(H), !.             %  x/f(3), y, G = y.
-subs(X/T, exists X::F, exists X::F):- !.  % casos para cuantificadores
+
+% Esta regla maneja el caso donde X y T son idénticos, por lo que no hay nada que sustituir.
+% Por ejemplo, si X = x, T = f(3) y X = F,  entonces G = f(3).
+subs(X/T, X, T):- !.
+
+% Esta regla maneja el caso donde H es un átomo y no necesita ser sustituido.
+% Por ejemplo, si X = x/f(3) y H = y, entonces G = y.
+subs(X/T, H, H):- atom(H), !.
+
+% casos para cuantificadores
+% Estas dos reglas manejan los casos donde hay cuantificadores existenciales o universales en F.
+% En ambos casos, la sustitución no afecta al cuantificador, por lo que G es idéntico a F.
+subs(X/T, exists X::F, exists X::F):- !.
 subs(X/T, forall X::F, forall X::F):- !.
 
 % Casos recursivos
+
+% Esta regla maneja los casos más complejos donde F es una función o predicado.
 subs(X/T, F, G) :-                   
-    F =.. [Op|Args],
-    write('Args: '), write(Args), nl,
-    maplist(subs(X/T), Args, NewArgs),          % Sustituir cada X por T en cada elemento de Arg:   [forall y  ,   (p(x,y)->exists x:: ~q(y,x))] , Arg =[y] NewArgs: [y] (Si no existe la x devuevle el atomo correspondiente)
-    write('NewArgs: '), write(NewArgs), nl,     % Sustituir cada X por T en cada elemento de Arg:   [[p(x,y)   ,   exists x:: ~q(y,x)]] , NewArgs: [x,y] (Si no existe la x devuevle el atomo correspondiente)
+    F =.. [Op|Args],                              % L =[subs, a/f(3), a+4], X=..L.    L =[subs, a/f(3), a+4]   X = subs(a/f(3), a+4).
+    % write('Args: '), write(Args), nl,
+    maplist(subs(X/T), Args, NewArgs),            % Sustituir cada X por T en cada elemento de Arg:   [forall y  ,   (p(x,y)->exists x:: ~q(y,x))] , Arg =[y] NewArgs: [y] (Si no existe la x devuevle el átomo correspondiente)
+    % write('NewArgs: '), write(NewArgs), nl,     % Sustituir cada X por T en cada elemento de Arg:   [[p(x,y)   ,   exists x:: ~q(y,x)]] , NewArgs: [x,y] (Si no existe la x devuelve el átomo correspondiente)
     G =.. [Op|NewArgs].
 
+%_______________________________________________________________________________________________________________________________________________________________________________
+% Apartado 2. Predicado subs_list
+% Predicado que aplica una lista de sustituciones por orden de izquierda a derecha a una fórmula lógica F, devolviendo el resultado en G.
 
-% L =[subs, a/f(3), a+4], X=..L.
-% L =[subs, a/f(3), a+4]
-% X = subs(a/f(3), a+4).
+% Rs es la lista de sustituciones, donde cada elemento tiene la forma X/T, es decir, se sustituirá X por T.
+% F es la fórmula lógica que se desea transformar.
+% G es la fórmula lógica resultante de aplicar todas las sustituciones de Rs en F por orden de izquierda a derecha.
+
+% Caso base: cuando no hay más sustituciones por aplicar, la fórmula resultante es la misma que la original.
+subs_list([], F, F).
+
+% Caso recursivo: se aplica la sustitución X/T a la fórmula F, obteniendo H, y se continúa aplicando las restantes sustituciones de la lista Rs a H.
+subs_list([X/T|Rs], F, G) :-
+    subs(X/T, F, H),
+    subs_list(Rs, H, G).
 
 
-%Otra implementación:
+
+%Otra implementación aparte del subs:
 % Caso base
 %subs(X/T, X, T) :- !.                  % z/f(3), y, G
 %subs(X/T, H, H) :- atom(H), !.         % x/f(3), y, G
@@ -58,20 +84,3 @@ subs(X/T, F, G) :-
 %subs_args(X/T, [Arg|Args], [NewArg|NewArgs]) :-
     %subs(X/T, Arg, NewArg),
     %subs_args(X/T, Args, NewArgs).
-
-
-%_______________________________________________________________________________________________________________________________________________________________________________
-% Apartado 2. Predicado subs_list
-% Predicado que aplica una lista de sustituciones por orden de izquierda a derecha a una fórmula lógica F, devolviendo el resultado en G.
-
-% Rs es la lista de sustituciones, donde cada elemento tiene la forma X/T, es decir, se sustituirá X por T.
-% F es la fórmula lógica que se desea transformar.
-% G es la fórmula lógica resultante de aplicar todas las sustituciones de Rs en F por orden de izquierda a derecha.
-
-% Caso base: cuando no hay más sustituciones por aplicar, la fórmula resultante es la misma que la original.
-subs_list([], F, F).
-
-% Caso recursivo: se aplica la sustitución X/T a la fórmula F, obteniendo H, y se continúa aplicando las restantes sustituciones de la lista Rs a H.
-subs_list([X/T|Rs], F, G) :-
-    subs(X/T, F, H),
-    subs_list(Rs, H, G).
