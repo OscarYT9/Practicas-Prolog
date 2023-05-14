@@ -42,11 +42,11 @@ subs(X/T, forall X::F, forall X::F):- !.
 
 % Esta regla maneja los casos más complejos donde F es una función o predicado.
 subs(X/T, F, G) :-                   
-    F =.. [Op|Args],                              % L =[subs, a/f(3), a+4], X=..L.    L =[subs, a/f(3), a+4]   X = subs(a/f(3), a+4).
+    F =.. [Op|Args],                              % Descomponer F en una lista de argumentos: Op es el nombre de la función/predicado, y Args es una lista de argumentos.
     % write('Args: '), write(Args), nl,
-    maplist(subs(X/T), Args, NewArgs),            % Sustituir cada X por T en cada elemento de Arg:   [forall y  ,   (p(x,y)->exists x:: ~q(y,x))] , Arg =[y] NewArgs: [y] (Si no existe la x devuevle el átomo correspondiente)
-    % write('NewArgs: '), write(NewArgs), nl,     % Sustituir cada X por T en cada elemento de Arg:   [[p(x,y)   ,   exists x:: ~q(y,x)]] , NewArgs: [x,y] (Si no existe la x devuelve el átomo correspondiente)
-    G =.. [Op|NewArgs].
+    maplist(subs(X/T), Args, NewArgs),            % Para cada argumento en Args, aplica la regla de sustitución subs(X/T) y almacena los nuevos argumentos en una nueva lista NewArgs.
+    % write('NewArgs: '), write(NewArgs), nl,
+    G =.. [Op|NewArgs].                           % Construye el nuevo término G utilizando el operador Op y la lista de nuevos argumentos NewArgs.
 
 %_______________________________________________________________________________________________________________________________________________________________________________
 % Apartado 2. Predicado subs_list
