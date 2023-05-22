@@ -1,4 +1,4 @@
-% Oscar Vilela Rodriguez (oscar.vilela.rodriguez@udc.es)
+% Óscar Vilela Rodriguez (oscar.vilela.rodriguez@udc.es)
 % Guillermo García Engelmo (g.garcia2@udc.es)
 
 % Operadores lógicos en prolog
@@ -56,6 +56,11 @@ subs(X/T, F, G) :-
 % F es la fórmula lógica que se desea transformar.
 % G es la fórmula lógica resultante de aplicar todas las sustituciones de Rs en F por orden de izquierda a derecha.
 
+% Algunos ejemplos de ejecución serían:
+% ?- subs_list([x/3,y/f(z),z/8], p(x,y), G).                        G = p(3, f(8)). 
+% ?- subs_list([x/f(z),z/f(z)], q(x) v forall x:: p(x,y), G).       G = q(f(f(z)))v forall x::p(x, y). 
+
+
 % Caso base: cuando no hay más sustituciones por aplicar, la fórmula resultante es la misma que la original.
 subs_list([], F, F).
 
@@ -66,6 +71,8 @@ subs_list([X/T|Rs], F, G) :-
 
 
 
+
+%_______________________________________________________________________________________________________________________________________________________________________________
 %Otra implementación aparte del subs:
 % Caso base
 %subs(X/T, X, T) :- !.                  % z/f(3), y, G
